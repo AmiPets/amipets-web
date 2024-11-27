@@ -1,9 +1,14 @@
 {
     "compilerOptions": {
+        "jsx": "react-jsx", // Adiciona suporte ao JSX
+        "allowSyntheticDefaultImports": true, // Permite imports padrão
         "paths": {
             "@/*": [
                 "./src/*"
             ]
         }
-    }
+    },
+    "include": [
+        "src/**/*"
+    ]
 }
