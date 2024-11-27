@@ -3,9 +3,8 @@ import { useEffect, useState } from "react"
 import { Combobox } from "../Combobox/Combobox"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Table, TableHead, TableHeader, TableBody, TableCell, TableRow } from "../ui/table"
-import { PencilIcon, PlusCircle, Search, SpeechIcon, Trash2 } from "lucide-react"
+import { PencilIcon, PlusCircle, Search, Trash2 } from "lucide-react"
 import { PopoverCheckboxGroup } from "../PopoverCheckboxGroup/PopoverCheckboxGroup"
 import axios from "axios"
 
@@ -17,13 +16,7 @@ import { useForm } from "react-hook-form"
 
 export function PetsTable() {
 
-    const [inputId, setInputId] = useState("");
-    const [inputName, setInputName] = useState("");
-    const [selectedSpecies, setSelectedSpecies] = useState([]);
-    const [selectedSizes, setSelectedSizes] = useState([]);
-    const [selectedStatus, setSelectedStatus] = useState([]);
-
-    const { control, handleSubmit, register } = useForm({
+    const { control, handleSubmit, register, setValue } = useForm({
         defaultValues: {
             id: "",
             name: "",
@@ -49,7 +42,6 @@ export function PetsTable() {
     }
 
     useEffect(() => {
-        console.log(JSON.stringify(normalizeFilters(species)));
         const getPets = async () => {
             const pets = await axios.get("http://localhost:8000/api/pets", {
             })
@@ -59,13 +51,13 @@ export function PetsTable() {
         getPets();
     }, []);
 
-    function normalizeFilters(filterArray) {
-        return filterArray.map((x) => {
-            if (!mapForFilters[x]) {
-                return x.toLowerCase();
+    function normalizeFilters(filters) {
+        return filters.map((filter) => {
+            if (!mapForFilters[filter]) {
+                return filter.toLowerCase();
             }
             else {
-                return mapForFilters[x];
+                return mapForFilters[filter];
             }
         });
     }
@@ -74,35 +66,29 @@ export function PetsTable() {
 
         console.log(data);
 
-        // console.log("sasdasd:" + (!inputName ? "" : inputName));
-        // console.log(normalizeFilters(selectedSpecies));
-        // console.log(normalizeFilters(selectedSizes));
-        // console.log(normalizeFilters(selectedStatus));
-
-        // const getPets = async () => {
-        //     const pets = await axios.get("http://localhost:8000/api/pets", {
-        //         params: {
-        //             ...(inputName !== "" && {
-        //                 nome: inputName
-        //             }),
-        //             especie: JSON.stringify(normalizeFilters(selectedSpecies)),
-        //             tamanho: JSON.stringify(normalizeFilters(selectedSizes)),
-        //             status: JSON.stringify(normalizeFilters(selectedStatus))
-        //         }
-        //     })
-        //     setPets(pets.data);
-        //     console.log(pets.data);
-        // }
-        // getPets();
-
+        const getPets = async () => {
+            const pets = await axios.get("http://localhost:8000/api/pets", {
+                params: {
+                    ...(data.name !== "" && {
+                        nome: data.name
+                    }),
+                    especie: JSON.stringify(normalizeFilters(data.species)),
+                    tamanho: JSON.stringify(normalizeFilters(data.sizes)),
+                    status: JSON.stringify(normalizeFilters(data.status))
+                }
+            })
+            setPets(pets.data);
+            console.log(pets.data);
+        }
+        getPets();
     }
 
     function handleCleanFilters() {
-        setInputId("");
-        setInputName("");
-        setSelectedSpecies([]);
-        setSelectedSizes([]);
-        setSelectedStatus([]);
+        setValue("name", "");
+        setValue("id", "");
+        setValue("sizes", []);
+        setValue("status", []);
+        setValue("species", []);
     }
 
     return (
@@ -111,7 +97,7 @@ export function PetsTable() {
                 <form className="flex items-center gap-2" onSubmit={handleSubmit(searchPets)}>
                     <Input name="id" placeholder="ID do pet" {...register("id")}></Input>
                     <Input name="nome" placeholder="Nome do pet" {...register("name")}></Input>
-                    <Combobox content={species} selectedValues={selectedSpecies} setSelectedValues={setSelectedSpecies}>
+                    <Combobox options={species} control={control} name="species">
                         Espécie
                     </Combobox>
                     <PopoverCheckboxGroup options={status} control={control} name="status" >
@@ -125,7 +111,6 @@ export function PetsTable() {
                         Filtrar resultados
                     </Button>
                     <Button type="submit" variant="outline" onClick={handleCleanFilters}>
-
                         Limpar Filtros
                     </Button>
                 </form>

@@ -5,37 +5,12 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 import PropTypes from 'prop-types';
+import { Controller } from "react-hook-form"
 
 
-export function Combobox({ content = [], selectedValues = [], setSelectedValues, children }) {
+export function Combobox({ options = [], children, control, name }) {
 
     const [isOpened, setIsOpened] = useState(false);
-
-    const addValue = (value) => {
-
-        const index = selectedValues.indexOf(value);
-
-        // Se o valor ainda não está selecionado no ComboBox
-        if (index === -1) {
-            setSelectedValues((oldValues) => {
-                const newValues = [...oldValues];
-                newValues.push(value);
-                console.log(newValues);
-                return newValues;
-            });
-        }
-        // Se o valor já está selecionado no ComboBox
-        else {
-            setSelectedValues((oldValues) => {
-                const newValues = [...oldValues];
-                newValues.splice(index, 1);
-                console.log(newValues);
-                return newValues;
-            });
-        }
-
-    }
-
 
     return (
 
@@ -59,18 +34,31 @@ export function Combobox({ content = [], selectedValues = [], setSelectedValues,
                             <CommandEmpty>Nenhum resultado.</CommandEmpty>
                             <CommandGroup heading="">
                                 {
-                                    content.map((menuValue, index) => {
-                                        return <CommandItem
+                                    options.map((option, index) => (
+                                        <Controller
                                             key={index}
-                                            value={menuValue}
-                                            onSelect={(value) => addValue(value)}
-                                            className={`flex justify-between`}
-                                        >
-                                            {menuValue}
-                                            {selectedValues.includes(menuValue) && <Check />}
-                                        </CommandItem>
-                                    })
+                                            name={name}
+                                            control={control}
+                                            defaultValue={[]}
+                                            render={(controller) => (
+                                                <CommandItem
+                                                    key={index}
+                                                    className={`flex justify-between`}
+                                                    value={controller.field.value.includes(option)}
+                                                    onSelect={() => {
+                                                        const values = controller.field.value;
+                                                        const newValues = values.includes(option) ? values.filter((x) => x !== option) : [...values, option];
+                                                        controller.field.onChange(newValues);
+                                                    }}
+                                                >
+                                                    {option}
+                                                    {controller.field.value.includes(option) && <Check />}
+                                                </CommandItem>
+                                            )}
+                                        />
+                                    ))
                                 }
+
                             </CommandGroup>
                         </CommandList>
                     </Command>
@@ -83,9 +71,9 @@ export function Combobox({ content = [], selectedValues = [], setSelectedValues,
 }
 
 Combobox.propTypes = {
-    content: PropTypes.arrayOf(PropTypes.string).isRequired,
-    selectedValues: PropTypes.arrayOf(PropTypes.string).isRequired,
-    setSelectedValues: PropTypes.func.isRequired,
+    options: PropTypes.arrayOf(PropTypes.string).isRequired,
     className: PropTypes.string,
-    children: PropTypes.string
+    children: PropTypes.string,
+    name: PropTypes.string,
+    control: PropTypes.any,
 }
