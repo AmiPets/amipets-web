@@ -3,20 +3,29 @@ import { useEffect, useState } from "react"
 import { Button } from "../ui/button"
 
 import { Table, TableHead, TableHeader, TableBody, TableCell, TableRow } from "../ui/table"
-import { Ellipsis, PencilIcon, PlusCircle, Trash2 } from "lucide-react"
+import { Ellipsis, PencilIcon, PlusCircle, Search, Trash2 } from "lucide-react"
 import { getFormattedPetStatus } from "../../utils/getFormattedPetStatus.js";
+import { getStatusCode } from "../../utils/getStatusCode";
 import { getFormattedDate } from "@/utils/getFormattedDate"
 import { capitalize } from "@/utils/capitalize"
+import { useForm } from "react-hook-form"
+import axios from "axios"
+import { DialogDescription } from "@radix-ui/react-dialog"
 import { PetFormDialog } from "../PetFormDialog/PetFormDialog"
-import { useSearchParams } from "react-router-dom"
+import { z } from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { fetchPets } from "@/services/fetchPets"
+import { PetState } from "@/utils/PetState"
 import { PetsFilters } from "../PetsFilters/PetsFilters"
 import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/apiWrapper";
 import { sendPetToAPI } from "@/services/sendPetToAPI";
 import { updatePet } from "@/services/updatePet";
 import { PetsResume } from "../PetsResume/PetsResume";
+import { getPetLinkText } from "@/utils/getPetLinkText";
 
-export function PetsViewAdmin() {
+export function AdocoesViewAdmin() {
 
     const [searchParams] = useSearchParams();
 
@@ -26,8 +35,14 @@ export function PetsViewAdmin() {
     let sizes = JSON.parse(searchParams.get('sizes'));
     let status = JSON.parse(searchParams.get('status'));
 
+    const navigate = useNavigate();
+
+    const handleNavigateToPets = (id) => {
+        navigate(`/admin/pets?id=${id}`);
+    }
+
     const { data: pets } = useQuery({
-        queryKey: ['pets', id, name, species, sizes, status],
+        queryKey: ['adocoes', id, name, species, sizes, status],
         queryFn: () => fetchPets({
             id,
             name,
@@ -65,22 +80,23 @@ export function PetsViewAdmin() {
 
         <div className="w-full p-10 flex flex-col">
 
-            <h1 className="text-3xl font-bold mb-4">Pets</h1>
+            <h1 className="text-3xl font-bold mb-4">Adoções</h1>
 
             <div className="flex justify-between space-x-10">
                 <div className="flex flex-col flex-grow space-y-4">
                     <PetsFilters />
                     <div className="border rounded-lg p-2">
                         <Table>
+                            {/* // nome do adotante email, status da adocao, data da adocao   
+                                fitlros: status, por pet,
+                            */}
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>ID</TableHead>
-                                    <TableHead>Foto</TableHead>
-                                    <TableHead>Nome</TableHead>
-                                    <TableHead>Espécie</TableHead>
-                                    <TableHead >Data de Nascimento</TableHead>
+                                    <TableHead>Foto do pet</TableHead>
+                                    <TableHead>Pet</TableHead>
+                                    <TableHead>Adotante</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Tamanho</TableHead>
+                                    <TableHead>Data da adoção</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -88,16 +104,22 @@ export function PetsViewAdmin() {
                                 {
                                     pets && pets.map((pet) => {
                                         return <TableRow key={pet.id}>
-                                            <TableCell>{pet.id}</TableCell>
                                             <TableCell>
                                                 <div className="w-20 h-20 rounded-3xl overflow-hidden flex justify-center items-center">
                                                     <img src={pet.foto} alt={`foto de ${pet.nome}`} className="w-full h-full object-cover" />
                                                 </div>
                                             </TableCell>
+                                            <TableCell>
+                                                <Button type="button" variant="link" onClick={() => handleNavigateToPets(pet.id)} >
+                                                    {getPetLinkText(pet.nome, pet.id)}
+                                                </Button>
+                                            </TableCell>
                                             <TableCell>{pet.nome}</TableCell>
                                             <TableCell>{capitalize(pet.especie)}</TableCell>
                                             <TableCell>{getFormattedDate(pet.dataNascimento)}</TableCell>
-                                            <TableCell>{getFormattedPetStatus(pet.status)}</TableCell>
+                                            <TableCell>
+                                                {getFormattedPetStatus(pet.status)}
+                                            </TableCell>
                                             <TableCell>{capitalize(pet.tamanho)}</TableCell>
                                             <TableCell>
                                                 <Button variant="ghost">

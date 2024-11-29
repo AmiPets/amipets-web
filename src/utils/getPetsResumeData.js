@@ -11,7 +11,6 @@ export function getPetsResumeData(pets) {
     }
 
     pets.reduce((acc, x) => {
-        console.log(resume);
         const status = x.status;
 
         const mapStatus = {
@@ -19,11 +18,9 @@ export function getPetsResumeData(pets) {
             "1": "emAnalise",
             "2": "adotados"
         }
-        console.log(resume[mapStatus[status]]);
         resume[mapStatus[status]] += 1;
         return resume;
     }, resume, pets[0], 0)
 
-    console.log(resume);
     return resume;
 }
