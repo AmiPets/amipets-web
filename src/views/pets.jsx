@@ -8,42 +8,6 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchPets } from '@/services/fetchPets';
 
 export default function PetGallery() {
-  // const [pets, setPets] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // const fetchPets = async () => {
-  //   try {
-  //     const response = await api.get("pets");
-  //     const data = response.data;
-
-  //     if (Array.isArray(data)) {
-  //       const formattedData = data.map((pet) => ({
-  //         id: pet.id,
-  //         nome: pet.nome,
-  //         especie: pet.especie,
-  //         dataNasc: pet.dataNascimento
-  //           ? new Date(pet.dataNascimento).toLocaleDateString("pt-BR")
-  //           : "N/A",
-  //         tamanho: pet.tamanho || "N/A",
-  //         personalidade: pet.personalidade?.join(", ") || "N/A",
-  //         imagem: pet.foto || "https://via.placeholder.com/150",
-  //       }));
-
-  //       setPets(formattedData);
-  //     } else {
-  //       console.error("Resposta inesperada da API:", data);
-  //     }
-
-  //     setLoading(false);
-  //   } catch (error) {
-  //     console.error("Erro ao buscar os pets:", error.message);
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchPets();
-  // }, []);
 
   const [searchParams] = useSearchParams();
 

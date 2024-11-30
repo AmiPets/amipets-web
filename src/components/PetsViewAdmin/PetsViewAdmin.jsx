@@ -69,7 +69,7 @@ export function PetsViewAdmin() {
 
             <div className="flex justify-between space-x-10">
                 <div className="flex flex-col flex-grow space-y-4">
-                    <PetsFilters showStatus={true   } />
+                    <PetsFilters showStatus={true} showId={true} />
                     <div className="border rounded-lg p-2">
                         <Table>
                             <TableHeader>
