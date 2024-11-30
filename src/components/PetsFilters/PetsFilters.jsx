@@ -19,7 +19,7 @@ const petFiltersSchema = z.object({
     status: z.array(z.string().transform(specie => getStatusCode(specie)))
 })
 
-export function PetsFilters() {
+export function PetsFilters({ showStatus = true }) {
 
     const speciesField = ["Gato", "Cachorro", "Coelho"];
     const sizesField = ["Pequeno", "Médio", "Grande"];
@@ -131,9 +131,10 @@ export function PetsFilters() {
                 <Combobox options={speciesField} control={control} name="species" >
                     Espécie
                 </Combobox>
-                <PopoverCheckboxGroup options={statusField} control={control} name="status" >
+                {showStatus && <PopoverCheckboxGroup options={statusField} control={control} name="status" >
                     Status
                 </PopoverCheckboxGroup>
+                }
                 <PopoverCheckboxGroup options={sizesField} control={control} name="sizes">
                     Tamanho
                 </PopoverCheckboxGroup>
