@@ -1,6 +1,6 @@
 import { api } from "@/lib/apiWrapper";
 
-export async function fetchPets(filters) {
+export async function fetchAdocoes(filters) {
 
     const adocoes = await api.get("adocoes");
 
