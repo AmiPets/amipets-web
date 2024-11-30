@@ -1,9 +1,12 @@
 import { api } from "@/lib/apiWrapper";
-import axios from "axios";
 
 export async function fetchPets(filters) {
 
     const params = {};
+
+    if (filters.id) {
+        params.id = filters.id;
+    }
 
     if (filters.name) {
         params.nome = filters.name;

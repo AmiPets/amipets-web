@@ -2,12 +2,40 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import PetCard from '@/components/petCard';
 import { api } from '@/lib/apiWrapper';
+import { useQuery } from '@tanstack/react-query';
+import { fetchPets } from '@/services/fetchPets';
+import { PetsFilters } from '@/components/PetsFilters/PetsFilters';
+import { useSearchParams } from 'react-router-dom';
 
 export default function PetGallery() {
+  const [loading, setLoading] = useState(false);
   const [pets, setPets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
 
-  const fetchPets = async () => {
+  // Parâmetros da URL para filtros
+  const id = searchParams.get('id');
+  const name = searchParams.get('name');
+  let species = JSON.parse(searchParams.get('species') || '[]');
+  let sizes = JSON.parse(searchParams.get('sizes') || '[]');
+  let status = JSON.parse(searchParams.get('status') || '[]');
+
+  // Fetching de dados usando React Query
+  const { data: queryPets, isFetching } = useQuery({
+    queryKey: ['pets', id, name, species, sizes, status],
+    queryFn: () =>
+      fetchPets({
+        id,
+        name,
+        species,
+        sizes,
+        status,
+      }),
+    enabled: !!(id || name || species.length || sizes.length || status.length), // Somente executa caso existam filtros
+  });
+
+  // Fetch de dados padrão quando não há filtros
+  const fetchPetsWithoutFilters = async () => {
+    setLoading(true);
     try {
       const response = await api.get('pets');
       const data = response.data;
@@ -24,59 +52,42 @@ export default function PetGallery() {
           personalidade: pet.personalidade?.join(', ') || 'N/A',
           imagem: pet.foto || 'https://via.placeholder.com/150',
         }));
-
         setPets(formattedData);
       } else {
         console.error('Resposta inesperada da API:', data);
       }
-
-      setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar os pets:', error.message);
+    } finally {
       setLoading(false);
     }
   };
 
+  // Decidir entre dados filtrados ou padrão
   useEffect(() => {
-    fetchPets();
-  }, []);
+    if (isFetching) {
+      setLoading(true);
+    } else if (queryPets) {
+      setPets(queryPets);
+      setLoading(false);
+    } else {
+      fetchPetsWithoutFilters();
+    }
+  }, [queryPets, isFetching]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Filtros */}
       <div className="container mx-auto mt-8 px-4">
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-          <select className="border border-gray-300 rounded-lg p-3 w-full sm:w-auto">
-            <option value="">Espécie</option>
-            <option value="Cachorro">Cachorro</option>
-            <option value="Gato">Gato</option>
-          </select>
-          <select className="border border-gray-300 rounded-lg p-3 w-full sm:w-auto">
-            <option value="">Tamanho</option>
-            <option value="Pequeno">Pequeno</option>
-            <option value="Médio">Médio</option>
-            <option value="Grande">Grande</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Personalidade"
-            className="border border-gray-300 rounded-lg p-3 flex-grow"
-          />
-          <input
-            type="text"
-            placeholder="Nome"
-            className="border border-gray-300 rounded-lg p-3 flex-grow"
-          />
-          <Button className="bg-[#7DA632] text-white px-6 py-3 rounded-lg w-full sm:w-auto">
-            Pesquisar
-          </Button>
-        </div>
+        <PetsFilters showStatus={false} />
       </div>
 
+      {/* Lista de Pets */}
       <div className="container mx-auto mt-8 px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {loading ? (
             <p className="col-span-full text-center text-gray-700">Carregando...</p>
-          ) : (
+          ) : pets.length > 0 ? (
             pets.map((pet) => (
               <PetCard
                 key={pet.id}
@@ -89,6 +100,10 @@ export default function PetGallery() {
                 imagem={pet.imagem}
               />
             ))
+          ) : (
+            <p className="col-span-full text-center text-gray-700">
+              Nenhum pet encontrado.
+            </p>
           )}
         </div>
       </div>

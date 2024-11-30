@@ -19,7 +19,7 @@ const petFiltersSchema = z.object({
     status: z.array(z.string().transform(specie => getStatusCode(specie)))
 })
 
-export function PetsFilters() {
+export function PetsFilters({ showStatus = false, showId = false }) {
 
     const speciesField = ["Gato", "Cachorro", "Coelho"];
     const sizesField = ["Pequeno", "Médio", "Grande"];
@@ -126,14 +126,17 @@ export function PetsFilters() {
     return (
         <form className="flex justify-between gap-2 flex-wrap" onSubmit={handleSubmit(searchPetsFilters)}>
             <div className="flex space-x-2 items-center">
-                <Input name="id" placeholder="ID do pet" {...register("id")} className="max-w-24" />
+                {showId && <Input name="id" placeholder="ID do pet" {...register("id")} className="max-w-24" />
+                }
+
                 <Input name="nome" placeholder="Nome do pet" {...register("name")} className="max-w-52" />
                 <Combobox options={speciesField} control={control} name="species" >
                     Espécie
                 </Combobox>
-                <PopoverCheckboxGroup options={statusField} control={control} name="status" >
+                {showStatus && <PopoverCheckboxGroup options={statusField} control={control} name="status" >
                     Status
                 </PopoverCheckboxGroup>
+                }
                 <PopoverCheckboxGroup options={sizesField} control={control} name="sizes">
                     Tamanho
                 </PopoverCheckboxGroup>

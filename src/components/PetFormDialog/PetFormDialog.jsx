@@ -72,7 +72,6 @@ export function PetFormDialog({ children, initialValues, onSubmit, title, descri
     const { mutateAsync: submitPetFormFn } = useMutation({
         mutationFn: (onSubmit),
         onSuccess() {
-            console.log("estamos rodando");
             queryClient.invalidateQueries(['pets', id, name, species, sizes, status]);
             setOpen(false);
             reset()
@@ -80,7 +79,6 @@ export function PetFormDialog({ children, initialValues, onSubmit, title, descri
     });
 
     async function handleSubmitForm(data) {
-        console.log("oi");
         await submitPetFormFn(data);
     }
 
