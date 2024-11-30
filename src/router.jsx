@@ -11,6 +11,7 @@ import OTPPage from "./views/otp";
 import PetDetail from "./views/pet";
 import { PetsViewAdmin } from "./components/PetsViewAdmin/PetsViewAdmin";
 import UserEditarPage from "./views/user/editar";
+import { AdocoesViewAdmin } from "./components/AdocoesViewAdmin/AdocoesViewAdmin";
 
 const PrivateRoute = () => {
     const { token, loading } = useAuth();
@@ -42,19 +43,23 @@ export const router = createBrowserRouter(
             <Route path="/pets" element={<PetsView />} />
             <Route path="/pets/:id" element={<PetDetail />} />
 
+            {/* Rotas para usuários não autenticados */}
             <Route element={<GuestOnlyRoute />}>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/registrar" element={<SignUpPage />} />
                 <Route path="/otp" element={<OTPPage />} />
             </Route>
 
+            {/* Rotas para usuários autenticados */}
             <Route element={<PrivateRoute />}>
                 <Route path="user/edit" element={<UserEditarPage />} />
             </Route>
 
+            {/* Rotas para administradores */}
             <Route element={<AdminRoute />}>
                 <Route path="/admin/pets/" element={<PetsViewAdmin />} />
+                <Route path="/admin/adocoes/" element={<AdocoesViewAdmin />} />
             </Route>
         </Route>
     )
-)
+);
