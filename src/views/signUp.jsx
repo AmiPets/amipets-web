@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api } from "@/lib/apiWrapper";
 import { Link, useNavigate } from "react-router-dom";
+import InputMask from 'react-input-mask';
 
 export default function SignUpPage() {
   const [nome, setNome] = useState("");
@@ -13,7 +14,7 @@ export default function SignUpPage() {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-  
+
   const handleSignUp = async (event) => {
     event.preventDefault();
 
@@ -30,8 +31,13 @@ export default function SignUpPage() {
       });
 
       if (response.status === 201) {
-        console.log("Cadastro bem-sucedido", response.data);
-        setMessage("Seu cadastro foi recebido! Verifique seu email para validar sua conta.")
+        localStorage.setItem("userEmail", email);
+
+        setMessage("Seu cadastro foi recebido! Verifique seu email para validar sua conta.");
+
+        setTimeout(() => {
+          navigate("/OTP");
+        }, 3000);
       }
     } catch (err) {
       setError("Erro ao realizar cadastro. Verifique os dados.");
@@ -43,12 +49,12 @@ export default function SignUpPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-grow flex items-center justify-center gap-16">
-        <div className="w-[244px] h-[790px] rounded-lg bg-primary-400" />
+      <div className="flex-grow flex items-center justify-center gap-16 px-4 md:px-8">
+        <div className="hidden md:block w-[244px] h-[790px] rounded-lg bg-primary-400" />
         
-        <div className=" max-w-lg bg-white p-8 rounded-lg border border-primary-400 shadow-lg w-[420px]">
+        <div className="w-full max-w-lg bg-white p-8 rounded-lg border border-primary-400 shadow-lg">
           <div className="flex flex-col gap-3 mb-6">
-            <h2 className="text-3xl font-bold text-gray-800 ">Cadastrar-se</h2>
+            <h2 className="text-3xl font-bold text-gray-800">Cadastrar-se</h2>
             <p>
               Com uma conta, você poderá adotar um pet e transformar a vida dele
               para melhor!
@@ -57,12 +63,7 @@ export default function SignUpPage() {
 
           <form onSubmit={handleSignUp}>
             <div className="mb-6">
-              <label
-                htmlFor="nome"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Nome
-              </label>
+              <label htmlFor="nome" className="block text-sm font-medium text-gray-700">Nome</label>
               <input
                 type="text"
                 id="nome"
@@ -75,12 +76,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                E-mail
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-mail</label>
               <input
                 type="email"
                 id="email"
@@ -93,15 +89,9 @@ export default function SignUpPage() {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="telefone"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Telefone
-              </label>
-              <input
-                type="text"
-                id="telefone"
+              <label htmlFor="telefone" className="block text-sm font-medium text-gray-700">Telefone</label>
+              <InputMask
+                mask="(99) 99999-9999"
                 value={telefone}
                 onChange={(e) => setTelefone(e.target.value)}
                 className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:ring-[#7DA632] focus:border-[#7DA632] p-4 text-lg"
@@ -111,12 +101,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="endereco"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Endereço
-              </label>
+              <label htmlFor="endereco" className="block text-sm font-medium text-gray-700">Endereço</label>
               <input
                 type="text"
                 id="endereco"
@@ -129,12 +114,7 @@ export default function SignUpPage() {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="senha"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Senha
-              </label>
+              <label htmlFor="senha" className="block text-sm font-medium text-gray-700">Senha</label>
               <input
                 type="password"
                 id="senha"
@@ -146,13 +126,8 @@ export default function SignUpPage() {
               />
             </div>
 
-            {error && (
-              <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-            )}
-
-            {message && (
-              <p className="text-primary-300 text-sm text-center mb-4">{message}</p>
-            )}
+            {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+            {message && <p className="text-primary-300 text-sm text-center mb-4">{message}</p>}
 
             <div className="mb-6">
               <button
@@ -171,7 +146,8 @@ export default function SignUpPage() {
             </div>
           </form>
         </div>
-        <div className="w-[244px] h-[790px] rounded-lg bg-primary-400" />
+
+        <div className="hidden md:block w-[244px] h-[790px] rounded-lg bg-primary-400" />
       </div>
     </div>
   );
